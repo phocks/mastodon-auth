@@ -16,3 +16,18 @@ export const buildAuthorizationUrl = (domain: string, client_id: string): string
   });
   return `https://${domain}/oauth/authorize?${params}`;
 };
+
+export const buildAccessTokenRequestData = (
+  client_id: string,
+  client_secret: string,
+  code: string
+): URLSearchParams => {
+  return new URLSearchParams({
+    client_id,
+    client_secret,
+    redirect_uri: REDIRECT_URI,
+    grant_type: "authorization_code",
+    code,
+    scope: "read write push"
+  });
+};

@@ -1,5 +1,9 @@
 import type { ApiClient, Effect, TokenResponse } from "./types.ts";
-import { buildAuthorizationUrl, buildRegistrationData } from "./util.ts";
+import {
+  buildAccessTokenRequestData,
+  buildAuthorizationUrl,
+  buildRegistrationData,
+} from "./util.ts";
 import { createApiClient } from "./client.ts";
 
 export const registerApp =
@@ -21,4 +25,25 @@ export const getToken = async (domain: string): Promise<TokenResponse> => {
 export const getAuthUrl = async (domain: string): Promise<string> => {
   const { client_id } = await getToken(domain);
   return buildAuthorizationUrl(domain, client_id);
+};
+
+export const getAccessToken = async (
+  domain: string,
+  client_id: string,
+  client_secret: string,
+  code: string,
+): Promise<string> => {
+  const params = buildAccessTokenRequestData(client_id, client_secret, code);
+
+  const response = await fetch(`https://${domain}/oauth/token`, {
+    method: "POST",
+    body: params,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error obtaining access token: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.access_token;
 };
